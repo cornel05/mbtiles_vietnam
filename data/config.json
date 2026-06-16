@@ -1,0 +1,12 @@
+{
+  "options": {
+    "paths": {
+      "root": "/data"
+    }
+  },
+  "data": {
+    "vietnam": {
+      "mbtiles": "vietnam.mbtiles"
+    }
+  }
+}

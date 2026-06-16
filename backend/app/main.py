@@ -3,7 +3,7 @@ from shapely.geometry import Point, shape
 import json
 
 import httpx
-from fastapi import Response
+from fastapi.responses import StreamingResponse
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
@@ -49,18 +49,35 @@ TILE_SERVER_INTERNAL_URL = "http://127.0.0.1:8080"
 
 @app.get("/tiles/{path:path}")
 async def proxy_tiles(path: str):
-    url = f"{TILE_SERVER_INTERNAL_URL}/{path}"
+    client = httpx.AsyncClient(timeout=60.0)
 
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        upstream_response = await client.get(url)
+    request = client.build_request(
+        "GET",
+        f"{TILE_SERVER_INTERNAL_URL}/{path}",
+    )
 
-    return Response(
-        content=upstream_response.content,
-        status_code=upstream_response.status_code,
-        media_type=upstream_response.headers.get("content-type"),
-        headers={
-            "Cache-Control": "public, max-age=86400",
-        },
+    response = await client.send(request, stream=True)
+
+    forwarded_headers = {}
+
+    for header in (
+        "content-type",
+        "content-encoding",
+        "content-length",
+        "etag",
+        "last-modified",
+    ):
+        value = response.headers.get(header)
+        if value:
+            forwarded_headers[header] = value
+
+    forwarded_headers["cache-control"] = "public, max-age=86400"
+
+    return StreamingResponse(
+        response.aiter_raw(),
+        status_code=response.status_code,
+        headers=forwarded_headers,
+        background=response.aclose,
     )
 
 app.mount(
