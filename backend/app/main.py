@@ -1,6 +1,7 @@
 import random
 from shapely.geometry import Point, shape
 import json
+from pathlib import Path
 
 import httpx
 from fastapi.responses import StreamingResponse
@@ -9,7 +10,9 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Vietnam Telecom Stations")
 
-with open("/workspaces/mbtiles_vietnam/data/vietnam.geojson") as f:
+ROOT_DIR = Path(__file__).resolve().parents[2]
+
+with open(ROOT_DIR / "data" / "vietnam.geojson") as f:
     vietnam = shape(json.load(f)["features"][0]["geometry"])
 
 def generate_stations(count=500):
