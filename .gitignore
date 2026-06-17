@@ -216,3 +216,29 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Graphify outputs and local indexes
+graphify-out/
+.graphify/
+.graphify-cache/
+.graphifyignore
+
+# GitHub Actions workflow files
+.workflows/
+workflows/
+skills/
+skills-lock.json
+data/skills/
+
+# Extra generated MapLibre glyph families not used by style.json
+backend/app/static/glyphs/*
+!backend/app/static/glyphs/
+!backend/app/static/glyphs/noto_sans_regular/
+!backend/app/static/glyphs/noto_sans_regular/**
+!backend/app/static/glyphs/noto_sans_bold/
+!backend/app/static/glyphs/noto_sans_bold/**
+
+# Local map data/backups too large or redundant for git
+backend/app/static/*.old.json
+data/**/*.pmtiles
+*.pmtiles
